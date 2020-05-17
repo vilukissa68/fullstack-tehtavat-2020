@@ -7,9 +7,51 @@ const Button = (props) => (
   </button>
 )
 
-const Display = (props) => (
-  <p>{props.text} {props.value} {props.text2}</p>
+const StatisticLine = (props) => {
+  return(
+    <>
+    <tr>
+      <td>{props.text}</td>
+      <td>{props.value}{props.text2}</td>
+    </tr>
+    </>
+  )
+}
+
+const Statistics = (props) => { 
+
+const getAverage = (good, bad, total) => {
+  return (good + -1*bad)/total
+}
+
+const getPositive = (good, total) => {
+  return good/total*100
+}
+
+if (props.total === 0){
+  return (
+    <>
+    <p>No feedback given</p>
+    </>
+  )
+}
+
+return(
+  <>
+  <h1>Statistics</h1>
+  <table>
+    <tbody>
+      <StatisticLine text='good' value={props.good}/>
+      <StatisticLine text='neutral' value={props.neutral}/>
+      <StatisticLine text='bad' value={props.bad}/>
+      <StatisticLine text='all' value={props.total}/>
+      <StatisticLine text='average' value={getAverage(props.good, props.bad, props.total)}/>
+      <StatisticLine text='positive' value={getPositive(props.good, props.total)} text2='%'/>
+    </tbody>
+  </table>
+  </>
 )
+}
 
 const App = () => {
   // tallenna napit omaan tilaansa
@@ -33,27 +75,13 @@ const App = () => {
     setTotal(total + 1)
   }
 
-  const getAverage = () => {
-    return (good + -1*bad)/total
-  }
-
-  const getPositive = () => {
-    return good/total
-  }
-
   return (
     <div>
-      <h1>give feedback</h1>
+      <h1>Give feedback</h1>
       <Button handleClick={goodClickHandler} text='good' />
       <Button handleClick={neutralClickHandler} text='neutral' />
       <Button handleClick={badClickHanlder} text='bad' />
-      <h1>statistics</h1>
-      <Display text='good' value={good}/>
-      <Display text='neutral' value={neutral}/>
-      <Display text='bad' value={bad}/>
-      <Display text='all' value={total}/>
-      <Display text='average' value={getAverage()}/>
-      <Display text='positive' value={getPositive()} text2='%'/>
+      <Statistics good={good} neutral={neutral} bad={bad} total={total}/>
     </div>
   )
 }
