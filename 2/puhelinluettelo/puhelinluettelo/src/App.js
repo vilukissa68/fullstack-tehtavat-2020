@@ -1,5 +1,9 @@
 
 import React, { useState } from 'react'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import ShowContacts from './components/Contacts'
+
 
 const App = () => {
   const [ persons, setPersons] = useState([
@@ -30,6 +34,7 @@ const addContact = (event) => {
   else{
   setPersons(persons.concat(contactObject))
   setNewName('')
+  setNewNumber('')
   console.log("Contact added")
   }
 }
@@ -52,44 +57,24 @@ const filterContacts = (event) => {
 
 }
 
-const ShowContact = (props) => {
-  return(
-    <ul>
-    {props.persons.map((person, i) =>
-      <p key={i}>{person.name} {person.number}</p>
-    )}
-    </ul>
-  )
-}
-
   return (
     <div>
       <h2>Phonebook</h2>
       <div>
-        <form>
-          <div>filter shown with <input value={filterString}
-          onChange={filterContacts}/></div>
-        </form>
+        <Filter string={filterString} handleChange={filterContacts}/>
       </div>
       <h2>Add a new</h2>
-      <form onSubmit={addContact}>
-        <div>
-          name: <input value={newName}
-          onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber}
-          onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+        <PersonForm
+        addContact={addContact}
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+        />
       <h2>Numbers</h2>
-      <ShowContact persons={contactsToShow}/>
+      <ShowContacts persons={contactsToShow}/>
     </div>
   )
-
 }
 
 export default App
