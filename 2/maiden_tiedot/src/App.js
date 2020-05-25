@@ -6,6 +6,7 @@ import Results from './components/Results'
 const App = () =>{
     const [ searchString, setSearchString ] = useState('')
     const [ countries, setCountries] = useState([])
+    const [ weather, setWeather] = useState([])
 
 
     const hook = () => {
@@ -24,6 +25,10 @@ const App = () =>{
         setSearchString(event.target.value)
     }
 
+    const handleShowButtonClick = (event, id) => {
+        setSearchString(id)
+    }
+
     return(
         <div>
             <div>
@@ -31,7 +36,8 @@ const App = () =>{
                 handleChange={handleSearchStringChange}/>
             </div>
             <div>
-                <Results countries={countriesToShow}/>
+                <Results countries={countriesToShow} handleShowButtonClick={handleShowButtonClick}
+                setWeather={setWeather} weather={weather}/>
             </div>
         </div>
     )
