@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import ShowContacts from './components/Contacts'
+import contactService from './services/contact'
 
 
 const App = () => {
@@ -14,12 +14,11 @@ const App = () => {
   const [ filterString, setFilterString] = useState('')
 
 const hook = () => {
-  axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      console.log("Contacts loaded from server")
-      setPersons(response.data)
-    })
+  contactService
+    .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
 }
 
 useEffect(hook, [])
@@ -29,7 +28,7 @@ const addContact = (event) => {
   const contactObject = {
     name: newName,
     number: newNumber,
-    id: persons.length + 1,
+    id: persons[persons.length -1].id + 1,
   }
 
   const it = persons.find(element => element.name === newName)
@@ -37,10 +36,13 @@ const addContact = (event) => {
     window.alert(`${newName} is already added to the phonebook`)
   }
   else{
-  setPersons(persons.concat(contactObject))
-  setNewName('')
-  setNewNumber('')
-  console.log("Contact added")
+      contactService
+        .create(contactObject)
+          .then(returnedContact => {
+            setPersons(persons.concat(returnedContact))
+            setNewName('')
+            setNewNumber('')
+          })
   }
 }
 
@@ -54,6 +56,16 @@ const handleNameChange = (event) => {
 
 const handleNumberChange = (event) => {
   setNewNumber(event.target.value)
+}
+
+const handleDeleteClick = (event) => {
+  const removeID = event.target.id
+  console.log(removeID)
+  const temp = persons.filter(p => p.id !== removeID)
+  setPersons(temp)
+  console.log(persons)
+  contactService
+    .remove(removeID)
 }
 
 const filterContacts = (event) => {
@@ -77,7 +89,7 @@ const filterContacts = (event) => {
         handleNumberChange={handleNumberChange}
         />
       <h2>Numbers</h2>
-      <ShowContacts persons={contactsToShow}/>
+      <ShowContacts persons={contactsToShow} handleDeleteClick={handleDeleteClick}/>
     </div>
   )
 }
