@@ -4,6 +4,7 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import ShowContacts from './components/Contacts'
 import contactService from './services/contact'
+import contact from './services/contact'
 
 
 const App = () => {
@@ -32,9 +33,19 @@ const addContact = (event) => {
   }
 
   const it = persons.find(element => element.name === newName)
+
   if(typeof it !== 'undefined'){
-    window.alert(`${newName} is already added to the phonebook`)
+    const results = window.confirm(`${newName} is already added to the phonebook, 
+    replace the old number with a new one?`)
+    if( results === true ){
+      updateContact(it.id, contactObject)
+    }
+    else{
+      setNewName('')
+      setNewNumber('')
+    }
   }
+
   else{
       contactService
         .create(contactObject)
@@ -58,14 +69,25 @@ const handleNumberChange = (event) => {
   setNewNumber(event.target.value)
 }
 
-const handleDeleteClick = (event) => {
-  const removeID = event.target.id
-  console.log(removeID)
-  const temp = persons.filter(p => p.id !== removeID)
-  setPersons(temp)
-  console.log(persons)
+const updateContact = (id, newObject) => {
+  console.log(newObject)
+  console.log("id:", id)
   contactService
-    .remove(removeID)
+    .update(id, newObject).then(returnedContact => {
+      setPersons(persons.map(p => p.id !== id ? p : returnedContact))
+    })
+}
+
+const handleDeleteClick = (event) => {
+  const removeID = parseInt(event.target.id)
+  const result = window.confirm(`Delete ${persons.find(p => p.id === removeID).name} ?`)
+  if( result === true ){
+    contactService
+      .remove(removeID)
+        .then((response) => {
+          setPersons(persons.filter(p => p.id !== removeID))
+        })
+  }
 }
 
 const filterContacts = (event) => {
