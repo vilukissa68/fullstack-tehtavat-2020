@@ -1,21 +1,6 @@
 {
   "persons": [
     {
-      "name": "Jukka",
-      "number": "",
-      "id": 15
-    },
-    {
-      "name": "Pekka",
-      "number": "",
-      "id": 19
-    },
-    {
-      "name": "Eero",
-      "number": "",
-      "id": 21
-    },
-    {
       "name": "Iiro",
       "number": "",
       "id": 22
@@ -27,13 +12,28 @@
     },
     {
       "name": "Susanna",
-      "number": "",
+      "number": "123",
       "id": 24
     },
     {
-      "name": "Arto Hellas",
-      "number": "456",
-      "id": 25
+      "name": "Iisa",
+      "number": "",
+      "id": 26
+    },
+    {
+      "name": "Essi",
+      "number": "",
+      "id": 27
+    },
+    {
+      "name": "Annika",
+      "number": "",
+      "id": 28
+    },
+    {
+      "name": "Uuno",
+      "number": "",
+      "id": 29
     }
   ]
 }
