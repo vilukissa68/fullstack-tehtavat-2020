@@ -4,7 +4,7 @@ const ShowContacts = (props) => {
     return(
       <ul>
       {props.persons.map((person, i) =>
-        <p key={i}>{person.name} {person.number} <button id={person.id} onClick={props.handleDeleteClick}>delete</button></p>
+        <p key={i}>{person.name} {person.number} <button onClick={(e) => props.handleDeleteClick(e, person.id)}>delete</button></p>
       )}
       </ul>
     )

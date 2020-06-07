@@ -32,7 +32,6 @@ const addContact = (event) => {
   const contactObject = {
     name: newName,
     number: newNumber,
-    id: persons[persons.length -1].id + 1,
   }
 
   const it = persons.find(element => element.name === newName)
@@ -95,22 +94,24 @@ const updateContact = (id, newObject) => {
       })
 }
 
-const handleDeleteClick = (event) => {
-  const removeID = parseInt(event.target.id)
-  const name = persons.find(p => p.id === removeID).name
-  const result = window.confirm(`Delete ${name} ?`)
+const handleDeleteClick = (event, id) => {
+  event.preventDefault()
+  const DeleteID = id
+  const person = persons.find(p => p.id === DeleteID)
+  console.log(person)
+  const result = window.confirm(`Delete ${person.name} ?`)
   if( result === true ){
     contactService
-      .remove(removeID)
+      .remove(id)
         .then((response) => {
-          setPersons(persons.filter(p => p.id !== removeID))
-          setNotificationMessage(`Removed ${name}`)
+          setPersons(persons.filter(p => p.id !== person.id))
+          setNotificationMessage(`Removed ${person.name}`)
           setTimeout(() => {
             setNotificationMessage(null)
           }, 5000)
         })
         .catch(error => {
-          setErrorMessage(`Error: Information of ${name} has alredy been remove from server`)
+          setErrorMessage(`Error: Information of ${person.name} has alredy been remove from server`)
           setTimeout(() => {
             setErrorMessage(null)
           }, 5000)
