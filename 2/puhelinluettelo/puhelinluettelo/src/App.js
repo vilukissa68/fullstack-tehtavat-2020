@@ -60,6 +60,13 @@ const addContact = (event) => {
               setNotificationMessage(null)
             }, 5000)
           })
+          .catch(error => {
+            console.log(error.response.data)
+            setErrorMessage(error.response.data.error)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+          })
   }
 }
 
@@ -87,6 +94,7 @@ const updateContact = (id, newObject) => {
       }, 5000)
     })
     .catch(error => {
+      console.log(error)
       setErrorMessage(`Error: Information of ${newObject.name} has alredy been remove from server`)
       setTimeout(() => {
         setErrorMessage(null)
@@ -111,6 +119,7 @@ const handleDeleteClick = (event, id) => {
           }, 5000)
         })
         .catch(error => {
+          console.log(error)
           setErrorMessage(`Error: Information of ${person.name} has alredy been remove from server`)
           setTimeout(() => {
             setErrorMessage(null)
