@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Bestest blog in the world",
+  "author": "Mikko Mallikas",
+  "url": "www.bestestblogintheworld.best",
+  "likes": 28
+}
