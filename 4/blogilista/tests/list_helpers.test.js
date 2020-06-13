@@ -67,11 +67,19 @@ describe('favorite blog', () => {
 describe('most blogs', () => {
   test('when list is empty', () => {
     const blogs = []
-   const result = listHelper.mostBlogs(blogs) 
-   expect(result).toEqual({})
+    const result = listHelper.mostBlogs(blogs) 
+    expect(result).toEqual({})
   })
+
   test('when list has many authors', () => {
     const result = listHelper.mostBlogs(manyAuthors)
     expect(result).toEqual({author: "Me", blogs: 4})
+  })
+})
+
+describe('most likes', () => {
+  test('when list has multiple authors', () => {
+    const result = listHelper.mostLikes(manyAuthors)
+    expect(result).toEqual({author: "Winnie", likes: 345+275+1917})
   })
 })
