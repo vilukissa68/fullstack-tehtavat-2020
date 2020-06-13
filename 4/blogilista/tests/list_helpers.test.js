@@ -1,9 +1,21 @@
 const listHelper = require('../utils/list_helpers')
 
+
 const threeBlogs = [
 {title: "My First Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 0},
 {title: "Existential questions about eating honey as a bear", author: "Winnie",  url: "www.existentialhoney.com", likes: 345},
 {title: "Final Blog of The Trilogy", author: "asd", url: "localhost", likes: 42}
+]
+
+const manyAuthors = [
+  {title: "My First Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 0},
+  {title: "My Second Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes : 2},
+  {title: "My Third Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 3},
+  {title: "My Final Blog I'm quitting", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 2},
+  {title: "Existential questions about eating honey as a bear", author: "Winnie",  url: "www.existentialhoney.com", likes: 345},
+  {title: "Natural enemies: bears and tigers", author: "Winnie", url: "www.naturalenemies.org", likes: 275},
+  {title: "Buying right size t-shirts, preferably red ones", author: "Winnie", url: "www.heretogetshirts.red", likes: 1917},
+  {title: "asd", author: "Test", url: "www.com", likes: 404}
 ]
 
 
@@ -49,5 +61,17 @@ describe('favorite blog', () => {
   test('when list ahas more the one blogs', () => {
     const result = listHelper.favoriteBlog(threeBlogs)
     expect(result).toEqual(threeBlogs[1])
+  })
+})
+
+describe('most blogs', () => {
+  test('when list is empty', () => {
+    const blogs = []
+   const result = listHelper.mostBlogs(blogs) 
+   expect(result).toEqual({})
+  })
+  test('when list has many authors', () => {
+    const result = listHelper.mostBlogs(manyAuthors)
+    expect(result).toEqual({author: "Me", blogs: 4})
   })
 })
