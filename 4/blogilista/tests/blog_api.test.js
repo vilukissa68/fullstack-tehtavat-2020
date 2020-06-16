@@ -69,4 +69,38 @@ describe('api', () => {
 
     expect(blogsOnServer).toHaveLength(initialBlogs.length + 1)
   })
+
+  test('adding a blog with empty likes field', async () => {
+    const blogNoLikes = {
+      title: "I wish someone liked me",
+      author: "The Groke",
+      url: "www.iwishsomeonelikedme.groke.net"
+    }
+
+    const response = await api.post('/api/blogs')
+      .send(blogNoLikes)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body.likes).toBe(0)
+  })
+
+  test('adding blogs without title or url fields', async () => {
+
+    const malformedBlogs = [
+    { author: "Me", url: "/home/me/Documents/Projects/myblog.html", likes: 0 },
+    { title: "How do i post my blog to web?", author: "Me", likes: 0 },
+    { author: "Me", likes: 354 }]
+    
+    const promiseArray = await malformedBlogs.map(async blog => {
+      await api.post('/api/blogs')
+        .send(blog)
+        .expect(400)
+    })
+
+    await Promise.all(promiseArray)
+    const response = await api.get('/api/blogs')
+    const blogsOnServer = response.body
+    expect(blogsOnServer).toHaveLength(initialBlogs.length)
+  })
 })
