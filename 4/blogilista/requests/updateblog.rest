@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/blogs/5ee387ee2cf9523ed48aa50c
+Content-Type: application/json
+
+{
+  "title": "Blog was updated succesfully",
+  "author": "VS-code REST client",
+  "url": "localhost",
+  "likes": 101
+}
