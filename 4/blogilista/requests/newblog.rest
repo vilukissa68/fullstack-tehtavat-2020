@@ -2,7 +2,9 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "Bestest blog in the world",
+  "title": "test2",
   "author": "Mikko Mallikas",
-  "likes": 1000
+  "url": "www.blog.com",
+  "likes": 1000,
+  "userId": "5ef0f61b4e17db6a00199409"
 }
