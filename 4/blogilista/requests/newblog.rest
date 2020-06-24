@@ -3,7 +3,7 @@ Content-Type: application/json
 Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imp1dXJpIiwiaWQiOiI1ZWYyMTc4MDVlZTNjNTVhOWZiNDEwMjEiLCJpYXQiOjE1OTI5MjQwNDN9.bhybvLbaMaJ7T2KNyEkFP7Rga8HkWIGF2diJUCYFtc0
 
 {
-  "title": "this blog shouldn't show",
+  "title": "remove this",
   "author": "Mikko Mallikas",
   "url": "www.blog.com",
   "likes": 1000,

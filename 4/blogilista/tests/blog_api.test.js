@@ -9,20 +9,20 @@ const helper = require('../utils/list_helpers')
 const api = supertest(app)
 
 const initialBlogs = [
-  {title: "My First Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 0},
-  {title: "My Second Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes : 2},
-  {title: "My Third Blog", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 3},
-  {title: "My Final Blog I'm quitting", author: "Me", url: "thisfreeblogsitetotallydoesntstealyourinformationandsellit", likes: 2},
-  {title: "Existential questions about eating honey as a bear", author: "Winnie",  url: "www.existentialhoney.com", likes: 345},
-  {title: "Natural enemies: bears and tigers", author: "Winnie", url: "www.naturalenemies.org", likes: 275},
-  {title: "Buying right size t-shirts, preferably red ones", author: "Winnie", url: "www.heretogetshirts.red", likes: 1917},
-  {title: "asd", author: "Test", url: "www.com", likes: 404}
+  { title: 'My First Blog', author: 'Me', url: 'thisfreeblogsitetotallydoesntstealyourinformationandsellit', likes: 0 },
+  { title: 'My Second Blog', author: 'Me', url: 'thisfreeblogsitetotallydoesntstealyourinformationandsellit', likes : 2 },
+  { title: 'y Third Blog', author: 'Me', url: 'thisfreeblogsitetotallydoesntstealyourinformationandsellit', likes: 3 },
+  { title: 'My Final Blog I am quitting', author: 'Me', url: 'thisfreeblogsitetotallydoesntstealyourinformationandsellit', likes: 2 },
+  { title: 'Existential questions about eating honey as a bear', author: 'Winnie',  url: 'www.existentialhoney.com', likes: 345 },
+  { title: 'Natural enemies: bears and tigers', author: 'Winnie', url: 'www.naturalenemies.org', likes: 275 },
+  { title: 'Buying right size t-shirts, preferably red ones', author: 'Winnie', url: 'www.heretogetshirts.red', likes: 1917 },
+  { title: 'asd', author: 'Test', url: 'www.com', likes: 404 }
 ]
 
 const blogNotOnServer = {
-  title: "Generic Blog Name",
-  author: "Generic Author Name",
-  url: "www.genericblogaddress.com",
+  title: 'Generic Blog Name',
+  author: 'Generic Author Name',
+  url: 'www.genericblogaddress.com',
   likes: 7
 }
 
@@ -31,24 +31,32 @@ afterAll(() => {
 })
 
 beforeEach(async () => {
+  await User.deleteMany({})
+
+  const passwordHash = await bcrypt.hash('sekret', 10)
+  const user = new User({ username: 'root', passwordHash })
+
+  await user.save()
+
   await Blog.deleteMany({})
 
   const blogsObjects = initialBlogs
     .map(blog => new Blog(blog))
   const promiseArray = blogsObjects.map(blog => blog.save())
-  
+
   await Promise.all(promiseArray)
+
+
 
 })
 
 describe('notes api', () => {
   test('notes are returned as json', async () => {
-    console.log("testing with", initialBlogs.length, "blogs")
     const response = await api
       .get('/api/blogs')
       .expect(200)
       .expect('Content-Type', /application\/json/)
-      
+
     expect(response.body).toHaveLength(initialBlogs.length)
   })
 
@@ -61,7 +69,14 @@ describe('notes api', () => {
   })
 
   test('new blog can be added', async () => {
+
+    const res = await api.post('/api/login')
+      .send({ username: 'root', password: 'sekret' })
+
+    const token = res.body.token
+
     await api.post('/api/blogs')
+      .set('authorization', `bearer ${token}`)
       .send(blogNotOnServer)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -74,14 +89,21 @@ describe('notes api', () => {
   })
 
   test('adding a blog with empty likes field', async () => {
+
+    const res = await api.post('/api/login')
+      .send({ username: 'root', password: 'sekret' })
+
+    const token = res.body.token
+
     const blogNoLikes = {
-      title: "I wish someone liked me",
-      author: "The Groke",
-      url: "www.iwishsomeonelikedme.groke.net"
+      title: 'I wish someone liked me',
+      author: 'The Groke',
+      url: 'www.iwishsomeonelikedme.groke.net'
     }
 
     const response = await api.post('/api/blogs')
       .send(blogNoLikes)
+      .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -90,14 +112,19 @@ describe('notes api', () => {
 
   test('adding blogs without title or url fields', async () => {
 
-    const malformedBlogs = [
-    { author: "Me", url: "/home/me/Documents/Projects/myblog.html", likes: 0 },
-    { title: "How do i post my blog to web?", author: "Me", likes: 0 },
-    { author: "Me", likes: 354 }]
-    
+    const res = await api.post('/api/login')
+      .send({ username: 'root', password: 'sekret' })
+
+    const token = res.body.token
+
+    const malformedBlogs = [{ author: 'Me', url: '/home/me/Documents/Projects/myblog.html', likes: 0 },
+{ title: 'How do i post my blog to web?', author: 'Me', likes: 0 },
+{ author: 'Me', likes: 354 }]
+
     const promiseArray = await malformedBlogs.map(async blog => {
       await api.post('/api/blogs')
         .send(blog)
+        .set('authorization', `bearer ${token}`)
         .expect(400)
     })
 
@@ -106,7 +133,25 @@ describe('notes api', () => {
     const blogsOnServer = response.body
     expect(blogsOnServer).toHaveLength(initialBlogs.length)
   })
+  test('adding blog without token fails', async () => {
+
+    let response = await api.get('/api/blogs')
+    const blogsOnStart = response.body.map(r => r)
+
+    await api.post('/api/blogs')
+      .send(blogNotOnServer)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    response = await api.get('/api/blogs')
+    const blogsInEnd = response.body.map(r => r)
+
+    expect(blogsOnStart).toHaveLength(blogsInEnd.length)
+  })
 })
+
+
+// TESTS FOR USER API
 
 describe('user api', () => {
   beforeEach(async () => {
@@ -163,7 +208,7 @@ describe('user api', () => {
 
   test('creation fails with proper status code and message if username is too short', async() => {
     const usersAtStart = await helper.usersInDb()
-    
+
     const newUserWithTooShortUserName = {
       username: 'ab',
       name: 'laiskiainen',
@@ -202,6 +247,5 @@ describe('user api', () => {
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
 
-    
   })
 })
