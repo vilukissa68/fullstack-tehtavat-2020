@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notifications from './components/Error'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import LogoutButton from './components/Logout'
+import NewBlogForm from './components/NewBlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
@@ -12,14 +14,11 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    blogService.getAll().then(blogs => {
       setBlogs( blogs )
-    )  
+    })  
   }, [])
 
   useEffect(() => {
@@ -30,7 +29,11 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
+  
+  const sortBlogs = () => {
+    blogs.sort((a,b) => b.likes - a.likes) 
+  }
+  
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -62,14 +65,9 @@ const App = () => {
     }, 5000)
   }
 
-  const handleNewBlog = (event) => {
-    event.preventDefault()
-    const newBlog = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl
-    }
-    blogService.create(newBlog)
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility()
+    blogService.create(blogObject)
     .then(returnedBlog =>
       setBlogs(blogs.concat(returnedBlog))
     )
@@ -77,6 +75,35 @@ const App = () => {
     setTimeout(() => {
       setNotificationMessage(null)
     }, 5000)
+  }
+
+  const likeBlog = (id, blogObject) => {
+    blogService.update(id, blogObject)
+    .then(returnedBlog => {
+      setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
+    })
+    setNotificationMessage('liked <3')
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
+
+  }
+
+  const deleteBlog = (id) => {
+    blogService.remove(id)
+      .then(() => {
+        setBlogs(blogs.filter(blog => blog.id !== id))
+        setNotificationMessage('blog deleted')
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
+      })
+      .catch(error => {
+        setErrorMessage('failed to delete blog', error)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
   }
 
   const loginForm = () => (
@@ -105,11 +132,22 @@ const App = () => {
   const noteForm = () => (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in<LogoutButton handleLogout={handleLogout}/></p>
+      <p>{user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} 
+        blog={blog} 
+        likeBlog={likeBlog}
+        deleteBlog={deleteBlog}/>
       )}
     </div>
+  )
+
+  const blogFormRef = useRef()
+
+  const newBlogForm = () => (
+    <Togglable buttonLabel='new blog' ref={blogFormRef}>
+      <NewBlogForm createBlog={addBlog}/>
+    </Togglable>
   )
 
   const notificationField = () => (
@@ -119,37 +157,6 @@ const App = () => {
     </div>
   )
 
-  const newBlogForm = () => (
-    <div>
-      <h2>new note</h2>
-      <form onSubmit={handleNewBlog}>
-        <div>
-          title
-            <input type="text"
-            value={newTitle}
-            name='Title'
-            onChange={({ target }) => setNewTitle(target.value)}/>
-        </div>
-         <div>
-          author
-            <input type="text"
-            value={newAuthor}
-            name='Author'
-            onChange={({ target }) => setNewAuthor(target.value)}/>
-        </div>
-         <div>
-          url
-            <input type="text"
-            value={newUrl}
-            name='Url'
-            onChange={({ target }) => setNewUrl(target.value)}/>
-        </div>
-        <button type="submit">add</button>
-      </form>
-    </div>
-  )
-  
-
   if ( user === null ){
     return (
       <div>
@@ -158,7 +165,7 @@ const App = () => {
       </div>
     )
   }
-
+  sortBlogs() 
   return (
     <div>
     {notificationField()}
