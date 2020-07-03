@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 
-const Blog = ({blog, likeBlog, deleteBlog}) => {
+const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
 
   const [allInformationVisible, setAllInformationVisible] = useState(false)
 
@@ -37,25 +37,37 @@ const Blog = ({blog, likeBlog, deleteBlog}) => {
 
   const handleDelete = (event) => {
     event.preventDefault()
-    console.log("Deleting blog")
-    deleteBlog(blog.id)
+    const answer = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
+    if(answer){
+      deleteBlog(blog.id)
+    }
   }
 
   if (allInformationVisible){
-    return(
-      <div style={blogStyle}>
-        {blog.title} {blog.author} <button onClick={handleViewButton}>hide</button>
+    if(user.username === blog.user.username){
+      return(
+        <div style={blogStyle}>
+          {blog.title} {blog.author} <button onClick={handleViewButton}>hide</button>
           <div>url: {blog.url}</div>
           <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
           <div>name: {blog.user.name}</div>
           <div><button onClick={handleDelete}>delete</button></div>
-      </div>    
+        </div>
+      )
+    }
+    return(
+      <div style={blogStyle} className='blog'>
+        {blog.title} {blog.author} <button onClick={handleViewButton}>hide</button>
+        <div>url: {blog.url}</div>
+        <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
+        <div>name: {blog.user.name}</div>
+      </div>
     )
   }
   return(
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       {blog.title} {blog.author} <button onClick={handleViewButton}>view</button>
-    </div>    
+    </div>
   )
 }
 
