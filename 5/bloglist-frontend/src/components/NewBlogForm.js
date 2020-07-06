@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 const NewBlogForm = ({ createBlog }) => {
@@ -21,33 +21,36 @@ const NewBlogForm = ({ createBlog }) => {
   }
 
   return (
-  <div>
-    <h2>new note</h2>
-    <form onSubmit={handleNewBlog}>
-      <div>
-        title
+    <div>
+      <h2>new note</h2>
+      <form onSubmit={handleNewBlog}>
+        <div>
+          title
           <input type="text"
-          value={newTitle}
-          name='Title'
-          onChange={({ target }) => setNewTitle(target.value)}/>
-      </div>
-       <div>
-        author
+            id='title'
+            value={newTitle}
+            name='Title'
+            onChange={({ target }) => setNewTitle(target.value)}/>
+        </div>
+        <div>
+          author
           <input type="text"
-          value={newAuthor}
-          name='Author'
-          onChange={({ target }) => setNewAuthor(target.value)}/>
-      </div>
-       <div>
-        url
+            id='author'
+            value={newAuthor}
+            name='Author'
+            onChange={({ target }) => setNewAuthor(target.value)}/>
+        </div>
+        <div>
+          url
           <input type="text"
-          value={newUrl}
-          name='Url'
-          onChange={({ target }) => setNewUrl(target.value)}/>
-      </div>
-      <button type="submit">add</button>
-    </form>
-  </div>
+            id='url'
+            value={newUrl}
+            name='Url'
+            onChange={({ target }) => setNewUrl(target.value)}/>
+        </div>
+        <button type="submit">add</button>
+      </form>
+    </div>
   )
 }
 
