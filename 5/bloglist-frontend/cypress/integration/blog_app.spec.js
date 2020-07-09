@@ -5,9 +5,8 @@ describe('Blog app', function() {
         password: 'superSecretPassword'
       }
   describe('login', function() {
-        beforeEach(function() {
+    beforeEach(function() {
       cy.request('POST', 'http://localhost:3001/api/testing/reset')
-      
       cy.request('POST', 'http://localhost:3001/api/users/', user)
       cy.visit('http://localhost:3000')
     })
@@ -35,7 +34,7 @@ describe('Blog app', function() {
     })
   })
 
-  describe.only('while logged in', function() {
+  describe('while logged in', function() {
     const blog = {
       title: "test blog",
       author: "Developer",
@@ -45,15 +44,11 @@ describe('Blog app', function() {
     beforeEach(function() {
       cy.request('POST', 'http://localhost:3001/api/testing/reset')
       cy.request('POST', 'http://localhost:3001/api/users/', user)
-      cy.visit('http://localhost:3000')
-      cy.get('#username-field').type(user.username)
-      cy.get('#password-field').type(user.password)
-      cy.get('#login-button').click()
-      cy.contains('logged')
+      cy.login({ username: 'tester', password: 'superSecretPassword' })  
     })
 
     it('user that has logged in can add blogs', function() {
-      cy.contains('new blog').click()
+      cy.contains('add a blog').click()
       cy.get('#title').type(blog.title)
       cy.get('#author').type(blog.author)
       cy.get('#url').type(blog.url)
@@ -69,7 +64,7 @@ describe('Blog app', function() {
 
     it('blog can be liked', function() {
       // Add blog
-      cy.contains('new blog').click()
+      cy.contains('add a blog').click()
       cy.get('#title').type(blog.title)
       cy.get('#author').type(blog.author)
       cy.get('#url').type(blog.url)
@@ -85,7 +80,7 @@ describe('Blog app', function() {
 
     it('blog can be deleted', function() {
       // Add blog
-      cy.contains('new blog').click()
+      cy.contains('add a blog').click()
       cy.get('#title').type(blog.title)
       cy.get('#author').type(blog.author)
       cy.get('#url').type(blog.url)
@@ -98,6 +93,28 @@ describe('Blog app', function() {
       // Check blog is deleted
       cy.get('html').should('not.contain', `${blog.title}`)
 
+    })
+
+    it('blogs are sorted by likes', function() {
+      // The order of the blogs should be 3, 1, 2
+      const blogs = [
+        { title: 'Blog 1', author: 'author1', url:"www.1.com", likes: '3' },
+        { title: 'Blog 2', author: 'author2', url:"www.2.com", likes: '0' },
+        { title: 'Blog 3', author: 'author3', url:"www.3.com", likes: '10' },
+      ]
+      blogs.forEach(blog => {
+        cy.createBlog({title: blog.title, 
+          author:blog.author, 
+          url: blog.url,
+          likes: blog.likes})
+      })
+
+      cy.get('.blog').then(blogs => {
+        console.log('number of blogs:', blogs.length)
+        cy.wrap(blogs[0]).should('contain', 'Blog 3')
+        cy.wrap(blogs[1]).should('contain', 'Blog 1')
+        cy.wrap(blogs[2]).should('contain', 'Blog 2')
+      })
     })
   })
 })
