@@ -1,9 +1,12 @@
 const notificationAtStart = "Hello world"
 
-export const setNotification = (content) => {
-  return {
+export const setNotification = (content, timeout) => {
+  return async dispatch => {
+    dispatch({
     type: 'SET_NOTIFICATION',
     content: content
+    })
+    setTimeout(() => {dispatch(removeNotification())}, timeout*1000)
   }
 }
 
