@@ -1,4 +1,5 @@
 const notificationAtStart = "Hello world"
+let timeoutID
 
 export const setNotification = (content, timeout) => {
   return async dispatch => {
@@ -6,7 +7,8 @@ export const setNotification = (content, timeout) => {
     type: 'SET_NOTIFICATION',
     content: content
     })
-    setTimeout(() => {dispatch(removeNotification())}, timeout*1000)
+    window.clearTimeout(timeoutID)
+    timeoutID = window.setTimeout(() => {dispatch(removeNotification())}, timeout*1000)
   }
 }
 
