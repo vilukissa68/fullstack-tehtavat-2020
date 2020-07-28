@@ -1,0 +1,41 @@
+{
+  "notes": [
+    {
+      "content": "custom-hookit aivan mahtavia",
+      "id": 1
+    },
+    {
+      "content": "paras feature ikinä <3",
+      "id": 2
+    },
+    {
+      "content": "asd",
+      "id": 3
+    },
+    {
+      "content": "as",
+      "id": 4
+    },
+    {
+      "content": "asd",
+      "id": 5
+    }
+  ],
+  "persons": [
+    {
+      "name": "mluukkai",
+      "number": "040-5483923",
+      "id": 1
+    },
+    {
+      "name": "arto hellas",
+      "number": "123456-789",
+      "id": 2
+    },
+    {
+      "name": "mikko mallikas",
+      "number": "12345",
+      "id": 3
+    }
+  ]
+}
