@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import Blogs from './components/Blog'
 import Notifications from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import LogoutButton from './components/Logout'
+
 import NewBlogForm from './components/NewBlogForm'
 import Togglable from './components/Togglable'
 
@@ -54,12 +54,7 @@ const App = () => {
       dispatch(setNotification('wrong username or password', 'error', 5))}
   }
 
-  const handleLogout = (event) => {
-    console.log('Loggin out')
-    event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser')
-    dispatch(setNotification('logged out!', 'notification', 5))
-  }
+
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
@@ -70,25 +65,7 @@ const App = () => {
     dispatch(setNotification('new blog added!', 'notification', 5))
   }
 
-  const likeBlog = (id, blogObject) => {
-    blogService.update(id, blogObject)
-      .then(returnedBlog => {
-        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
-      })
-      dispatch(setNotification('liked <3', 'notification', 5))
-  }
 
-  const deleteBlog = (id) => {
-    blogService.remove(id)
-      .then(() => {
-        setBlogs(blogs.filter(blog => blog.id !== id))
-        dispatch(setNotification('blog deleted', 'notification', 5))
-      })
-
-      .catch(error => {
-        dispatch(setNotification(`failed to delete blog ${error}`, 'error', 5))
-      })
-  }
 
   const loginForm = () => (
     <div>
@@ -115,19 +92,7 @@ const App = () => {
     </div>
   )
 
-  const noteForm = () => (
-    <div>
-      <h2>blogs</h2>
-      <p>{user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
-      {blogs.map(blog =>
-        <Blog key={blog.id}
-          blog={blog}
-          user={user}
-          likeBlog={likeBlog}
-          deleteBlog={deleteBlog}/>
-      )}
-    </div>
-  )
+
 
   const blogFormRef = useRef()
 
@@ -155,7 +120,7 @@ const App = () => {
   return (
     <div>
       {notificationField()}
-      {noteForm()}
+      <Blogs user={user}/>
       {newBlogForm()}
     </div>
   )

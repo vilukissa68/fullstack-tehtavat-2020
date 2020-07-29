@@ -1,4 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setNotification } from '../reducers/notificationReducer' 
+import LogoutButton from '../components/Logout'
+import { initializeBlogs } from '../reducers/blogReducer'
+
+
+
 
 
 const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
@@ -43,6 +50,8 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
     }
   }
 
+
+
   if (allInformationVisible){
     if(user.username === blog.user.username){
       return(
@@ -71,4 +80,57 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
   )
 }
 
-export default Blog
+const Blogs = (user) => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeBlogs())
+  },[dispatch])
+
+  const blogs = useSelector(state => state.blogs)
+
+  const handleLogout = (event) => {
+    console.log('Loggin out')
+    event.preventDefault()
+    window.localStorage.removeItem('loggedBlogappUser')
+    dispatch(setNotification('logged out!', 'notification', 5))
+  }
+  
+  const likeBlog = (id, blogObject) => {
+    // blogService.update(id, blogObject)
+    //   .then(returnedBlog => {
+    //     setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
+    //   })
+    //   dispatch(setNotification('liked <3', 'notification', 5))
+  }
+  
+  const deleteBlog = (id) => {
+    // blogService.remove(id)
+    //   .then(() => {
+    //     setBlogs(blogs.filter(blog => blog.id !== id))
+    //     dispatch(setNotification('blog deleted', 'notification', 5))
+    //   })
+  
+    //   .catch(error => {
+    //     dispatch(setNotification(`failed to delete blog ${error}`, 'error', 5))
+    //   })
+  }
+  
+
+  return (
+    <div>
+      <h2>blogs</h2>
+      <p>{user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
+      {blogs.map(blog =>
+        <Blog key={blog.id}
+          blog={blog}
+          user={user}
+          likeBlog={likeBlog}
+          deleteBlog={deleteBlog}/>
+      )}
+    </div>
+    )}
+
+
+
+export default Blogs
