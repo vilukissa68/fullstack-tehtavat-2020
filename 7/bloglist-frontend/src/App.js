@@ -1,98 +1,39 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Blogs from './components/Blog'
 import Notifications from './components/Notification'
-import blogService from './services/blogs'
-import loginService from './services/login'
 
 import NewBlogForm from './components/NewBlogForm'
 import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
+import { createBlog } from './reducers/blogReducer'
+import { setUser } from './reducers/userReducer'
+import UsersInformation from './components/UsersInformation'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+
+  const user = useSelector(state => state.users)
 
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    blogService.getAll().then(blogs => {
-      setBlogs( blogs )
-    })
-  }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if(loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(setUser(user))
     }
-  }, [])
-
-  const sortBlogs = () => {
-    blogs.sort((a,b) => b.likes - a.likes)
-  }
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch (exception){
-      dispatch(setNotification('wrong username or password', 'error', 5))}
-  }
+  }, [dispatch])
 
 
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
-    blogService.create(blogObject)
-      .then(returnedBlog =>
-        setBlogs(blogs.concat(returnedBlog))
-      )
+    dispatch(createBlog(blogObject)) 
     dispatch(setNotification('new blog added!', 'notification', 5))
   }
-
-
-
-  const loginForm = () => (
-    <div>
-      <h1>login</h1>
-      <form onSubmit={handleLogin}>
-        <div>
-          username
-          <input type="text"
-            id='username-field'
-            value={username}
-            name='Username'
-            onChange={({ target }) => setUsername(target.value)}/>
-        </div>
-        <div>
-          password
-          <input type="password"
-            id='password-field'
-            value={password}
-            name='Password'
-            onChange={({ target }) => setPassword(target.value)}/>
-        </div>
-        <button id='login-button' type="submit">login</button>
-      </form>
-    </div>
-  )
-
-
 
   const blogFormRef = useRef()
 
@@ -112,16 +53,17 @@ const App = () => {
     return (
       <div>
         {notificationField()}
-        {loginForm()}
+        <LoginForm/>
       </div>
     )
   }
-  sortBlogs()
+
   return (
     <div>
       {notificationField()}
       <Blogs user={user}/>
       {newBlogForm()}
+      <UsersInformation/>
     </div>
   )
 }
