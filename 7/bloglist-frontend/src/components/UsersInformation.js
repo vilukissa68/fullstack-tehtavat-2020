@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react'
 import userService from '../services/users'
 import { useState } from 'react'
+import {Link} from 'react-router-dom'
 
 const User = (user) => {
   return(
     <tr>
-      <td>{user.user.name}</td>
+      <td><Link to={`/users/${user.user.id}`}>{user.user.name}</Link></td>
       <td>{user.user.blogs.length}</td>
     </tr>
   )
@@ -28,12 +29,14 @@ const UsersInformation = () => {
       <h2>Users</h2>
       <div>
         <table className='userInformationTable'>
-          <tr>
-            <th></th>
-            <th>Blogs created</th>
-          </tr>
-          {users.map(user =>
-            <User key={user.id} user={user}/>)}
+          <tbody>
+            <tr>
+              <th></th>
+              <th>Blogs created</th>
+            </tr>
+            {users.map(user =>
+              <User key={user.id} user={user}/>)}
+          </tbody>
         </table>
       </div>
     </>

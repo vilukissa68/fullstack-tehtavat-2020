@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer' 
-import LogoutButton from '../components/Logout'
+
 import { initializeBlogs, addVote, deleteBlog } from '../reducers/blogReducer'
 
 const Blog = ({ blog, user }) => {
@@ -85,20 +85,14 @@ const Blogs = (user) => {
     blogs.sort((a,b) => b.likes - a.likes)
   }
 
-  const handleLogout = (event) => {
-    console.log('Loggin out')
-    event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser')
-    dispatch(setNotification('logged out!', 'notification', 5))
-  }
+
   const blogs = useSelector(state => state.blogs)
   sortBlogs()
 
 
   return (
     <div>
-      <h2>blogs</h2>
-      <p>{user.user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
+      
       {blogs.map(blog =>
         <Blog key={blog.id}
           blog={blog}

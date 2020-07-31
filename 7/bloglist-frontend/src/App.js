@@ -1,16 +1,20 @@
 import React, { useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { BrowserRouter as Router,
+Switch, Route } from 'react-router-dom'
+
 import Blogs from './components/Blog'
 import Notifications from './components/Notification'
-
 import NewBlogForm from './components/NewBlogForm'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
+import UsersInformation from './components/UsersInformation'
+import SingleUserView from './components/SingleUserView'
+import LogoutButton from './components/Logout'
 
-import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
-import UsersInformation from './components/UsersInformation'
 
 const App = () => {
 
@@ -27,7 +31,12 @@ const App = () => {
     }
   }, [dispatch])
 
-
+  const handleLogout = (event) => {
+    console.log('Loggin out')
+    event.preventDefault()
+    window.localStorage.removeItem('loggedBlogappUser')
+    dispatch(setNotification('logged out!', 'notification', 5))
+  }
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
@@ -49,6 +58,14 @@ const App = () => {
     </div>
   )
 
+  const GreetingField = () => {
+    return(
+      <div>
+        <h1>blogs</h1>
+        <p>{user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
+      </div>
+  )}
+
   if ( user === null ){
     return (
       <div>
@@ -60,10 +77,20 @@ const App = () => {
 
   return (
     <div>
-      {notificationField()}
-      <Blogs user={user}/>
-      {newBlogForm()}
-      <UsersInformation/>
+      <Router>
+        {notificationField()}
+        <GreetingField/>
+        <Switch>
+          <Route path='/users/:id'>
+            <SingleUserView/>
+          </Route>
+          <Route path=''>
+            <Blogs user={user}/>
+            {newBlogForm()}
+            <UsersInformation/>
+          </Route>
+        </Switch>
+      </Router>
     </div>
   )
 }
