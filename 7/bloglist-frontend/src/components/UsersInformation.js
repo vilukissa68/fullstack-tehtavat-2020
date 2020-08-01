@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import userService from '../services/users'
 import { useState } from 'react'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const User = (user) => {
   return(

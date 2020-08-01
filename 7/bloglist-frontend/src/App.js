@@ -10,10 +10,11 @@ import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import UsersInformation from './components/UsersInformation'
 import SingleUserView from './components/SingleUserView'
-import LogoutButton from './components/Logout'
+import SingleBlogView from './components/SingleBlogView'
+import NavigationMenu from './components/NavigationMenu'
 
 import { setNotification } from './reducers/notificationReducer'
-import { createBlog } from './reducers/blogReducer'
+import { initializeBlogs, createBlog } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
 
 const App = () => {
@@ -21,7 +22,10 @@ const App = () => {
   const user = useSelector(state => state.users)
 
   const dispatch = useDispatch()
-
+  
+  useEffect(() => {
+    dispatch(initializeBlogs())
+  },[dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -31,12 +35,10 @@ const App = () => {
     }
   }, [dispatch])
 
-  const handleLogout = (event) => {
-    console.log('Loggin out')
-    event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser')
-    dispatch(setNotification('logged out!', 'notification', 5))
-  }
+  
+
+
+
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
@@ -58,14 +60,6 @@ const App = () => {
     </div>
   )
 
-  const GreetingField = () => {
-    return(
-      <div>
-        <h1>blogs</h1>
-        <p>{user.name} logged in <LogoutButton handleLogout={handleLogout}/></p>
-      </div>
-  )}
-
   if ( user === null ){
     return (
       <div>
@@ -78,16 +72,22 @@ const App = () => {
   return (
     <div>
       <Router>
+        <NavigationMenu user={user}/>
         {notificationField()}
-        <GreetingField/>
         <Switch>
           <Route path='/users/:id'>
             <SingleUserView/>
           </Route>
-          <Route path=''>
-            <Blogs user={user}/>
-            {newBlogForm()}
+          <Route path='/blogs/:id'>
+            <SingleBlogView/>
+          </Route>
+          <Route path='/users'>
             <UsersInformation/>
+          </Route>
+          <Route path=''>
+            <h2>blog app</h2>
+            {newBlogForm()}
+            <Blogs user={user}/>
           </Route>
         </Switch>
       </Router>

@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { setNotification } from '../reducers/notificationReducer' 
+import React from 'react'
+import { useSelector } from 'react-redux'
+import { Link } from "react-router-dom";
 
-import { initializeBlogs, addVote, deleteBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, user }) => {
-
-  const dispatch = useDispatch()
-  const [allInformationVisible, setAllInformationVisible] = useState(false)
+const Blog = ({ blog }) => {
 
   const blogStyle = {
     paddingTop: 10,
@@ -17,69 +13,16 @@ const Blog = ({ blog, user }) => {
     marginBottom: 5
   }
 
-  const handleViewButton = () => {
-    if (allInformationVisible){
-      setAllInformationVisible(false)
-    }
-    else{
-      setAllInformationVisible(true)
-    }
-  }
-
-  const handleLike = (event) => {
-    console.log(blog.user)
-    event.preventDefault()
-    dispatch(addVote(blog))
-    dispatch(setNotification('liked <3', 'notification', 5))
-  }
-
-  const handleDelete = (event) => {
-    event.preventDefault()
-    const answer = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
-    if(answer){
-      try {
-        dispatch(deleteBlog(blog.id))
-        dispatch(setNotification('blog deleted', 'notification', 5))
-      } catch(error){
-        dispatch(setNotification(`failed to delete blog ${error}`, 'error', 5))
-      }
-    }
-  }
-
-  if (allInformationVisible){
-    if(user.username === blog.user.username){
-      return(
-        <div style={blogStyle}>
-          {blog.title} {blog.author} <button onClick={handleViewButton}>hide</button>
-          <div>url: {blog.url}</div>
-          <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
-          <div>name: {blog.user.name}</div>
-          <div><button onClick={handleDelete}>delete</button></div>
-        </div>
-      )
-    }
-    return(
-      <div style={blogStyle} className='blog'>
-        {blog.title} {blog.author} <button onClick={handleViewButton}>hide</button>
-        <div>url: {blog.url}</div>
-        <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
-        <div>name: {blog.user.name}</div>
-      </div>
-    )
-  }
   return(
     <div style={blogStyle} className='blog'>
-      {blog.title} {blog.author} <button onClick={handleViewButton}>view</button>
+      <Link to={`/blogs/${blog.id}`}>
+      {blog.title} {blog.author}
+      </Link>
     </div>
   )
 }
 
 const Blogs = (user) => {
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    dispatch(initializeBlogs())
-  },[dispatch])
 
   const sortBlogs = () => {
     blogs.sort((a,b) => b.likes - a.likes)
