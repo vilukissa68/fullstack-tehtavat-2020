@@ -11,6 +11,11 @@ blogsRouter.get('/', async (request, response) => {
 
 })
 
+blogsRouter.get('/:id', async (request, response) => {
+  const blog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1, id: 1 })
+  response.json(blog)
+})
+
 blogsRouter.post('/', async (request, response) => {
 
   const body = request.body
@@ -27,6 +32,7 @@ blogsRouter.post('/', async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes ? body.likes : 0,
+    comments: [],
     user: user._id
   })
 
@@ -67,12 +73,31 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     author: body.author,
     url: body.url,
+    comments: body.comments,
     likes: body.likes ? body.likes : 0
   }
 
   const blog = await Blog.findByIdAndUpdate(request.params.id, updatedBlog, { new: true }).populate('user', { username: 1, name: 1, id: 1 })
   console.log(blog)
   response.json(blog)
+})
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const message = request.body.message
+  console.log(request.body)
+
+  //const user = await User.findById(decodedToken.id)
+  const blogToComment = await Blog.findById(request.params.id)
+
+  if(!blogToComment){
+    return response.status(404).json({ error: 'blog does not exist' })
+  }
+  console.log(blogToComment)
+  blogToComment.comments.push(message)
+  console.log(blogToComment)
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blogToComment, { new: true }).populate('user', { username: 1, name:1, id: 1 })
+  console.log(updatedBlog)
+  response.json(updatedBlog)
 })
 
 module.exports = blogsRouter

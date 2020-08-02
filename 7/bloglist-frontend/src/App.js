@@ -35,11 +35,6 @@ const App = () => {
     }
   }, [dispatch])
 
-  
-
-
-
-
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
     dispatch(createBlog(blogObject)) 
