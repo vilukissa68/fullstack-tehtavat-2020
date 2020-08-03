@@ -57,7 +57,7 @@ const App = () => {
 
   if ( user === null ){
     return (
-      <div>
+      <div className="container">
         {notificationField()}
         <LoginForm/>
       </div>
@@ -65,7 +65,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <Router>
         <NavigationMenu user={user}/>
         {notificationField()}

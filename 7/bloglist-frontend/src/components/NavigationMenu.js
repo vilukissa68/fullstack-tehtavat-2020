@@ -3,6 +3,7 @@ import LogoutButton from './Logout'
 import { setNotification } from '../reducers/notificationReducer'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { Navbar, Nav } from 'react-bootstrap'
 
 const NavigationMenu = (user) => {
 
@@ -20,11 +21,22 @@ const NavigationMenu = (user) => {
   }
 
   return(
-    <div>
-      <Link style={padding} to='/blogs'>blogs</Link>
-      <Link style={padding} to='/users'>users</Link>
-      {user.user.name} logged in <LogoutButton handleLogout={handleLogout}/>
-    </div>
+    <Navbar collapseOnSelect expand="lg" bf="light">
+      <Navbar.Toggle aria-controls="responsesive-navbar-nav"/>
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="mr-auto">
+          <Nav.Link href="#" as="span">
+            <Link style={padding} to='/blogs'>blogs</Link>
+          </Nav.Link>
+          <Nav.Link href="#" as="span">
+            <Link style={padding} to='/users'>users</Link>
+          </Nav.Link>
+          <Nav.Link href="#" as="span">
+            {user.user.name} logged in <LogoutButton handleLogout={handleLogout}/>
+          </Nav.Link>
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
   )
 }
 

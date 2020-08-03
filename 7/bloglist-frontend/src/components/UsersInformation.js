@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import userService from '../services/users'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Table } from 'react-bootstrap'
 
 const User = (user) => {
   return(
@@ -28,7 +29,7 @@ const UsersInformation = () => {
     <>
       <h2>Users</h2>
       <div>
-        <table className='userInformationTable'>
+        <Table striped>
           <tbody>
             <tr>
               <th></th>
@@ -37,7 +38,7 @@ const UsersInformation = () => {
             {users.map(user =>
               <User key={user.id} user={user}/>)}
           </tbody>
-        </table>
+        </Table>
       </div>
     </>
   )

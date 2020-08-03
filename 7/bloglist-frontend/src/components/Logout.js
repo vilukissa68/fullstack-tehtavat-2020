@@ -1,7 +1,8 @@
 import React from 'react'
+import { Button } from 'react-bootstrap'
 
 const LogoutButton = (params) => (
-  <button onClick={params.handleLogout} >Logout</button>
+  <Button variant="danger" onClick={params.handleLogout} >Logout</Button>
 )
 
 export default LogoutButton

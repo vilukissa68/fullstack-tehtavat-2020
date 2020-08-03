@@ -4,6 +4,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import { addVote, deleteBlog, addNewComment } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import Togglable from './Togglable'
+import { Button } from 'react-bootstrap'
 
 const CommentForm = (props) => {
   const id = props.id
@@ -67,15 +68,14 @@ const SingleBlogView = () => {
   if (!blog){
     return null
   }
-  console.log(blog)
 
   return(
     <div>
       <h1>{blog.title}</h1>
       <div><a href={blog.url}>{blog.url}</a></div>
-      <div>{blog.likes} likes <button onClick={handleLikes}>like</button></div>
+      <div>{blog.likes} likes <Button onClick={handleLikes}>like</Button></div>
       <div>added by {blog.user.name}</div>
-      <div><button onClick={handleDelete}>delete</button></div>
+      <div><Button variant="danger" onClick={handleDelete}>delete</Button></div>
       <h2>comments</h2>
       <Togglable buttonLabel = {'add comment'} ref={commentFormRef}>
         <CommentForm id={id} commentFormRef={commentFormRef}/>
