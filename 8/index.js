@@ -1,4 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server')
+const { v1: uuid } = require('uuid')
 
 let authors = [
   {
@@ -24,6 +25,10 @@ let authors = [
     name: 'Sandi Metz', // birthyear not known
     id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
   },
+  {
+    name: 'Reijo Mäki',
+    id: "bfc5b6f3-344d-11e9-d414-719c6709cf3e"
+  }
 ]
 
 /*
@@ -103,8 +108,17 @@ const typeDefs = gql`
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks(author: String): [Book!]!
+    allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+  }
+  type Mutation {
+    addBook(
+      title: String!
+      published: Int!
+      author: String!
+      genres: [String!]!
+    ): Book
+    editAuthor(name: String!, setBornTo: Int): Author
   }
 `
 
@@ -113,12 +127,55 @@ const resolvers = {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: (root, args) => {
-      if(!args){
-        return books
+      let filteredBooks = books
+      if(args.author){
+        filteredBooks = filteredBooks.filter(book => book.author === args.author)
       }
-      return books.filter(book => book.author === args.author)
+      if(args.genre){
+        filteredBooks = filteredBooks.filter(book => book.genres.includes(args.genre))
+      }
+      return filteredBooks
     },
     allAuthors: () => authors
+  },
+  Mutation: {
+    addBook: (root, args) => {
+        const book = { ...args, id: uuid()}
+        books = books.concat(book)
+        const it = authors.find(a => a.name === args.author)
+        if(!it){
+          const author = {
+            name: args.author,
+            born: null,
+            id: uuid()
+          }
+          console.log("Adding new author:", author)
+          authors = authors.concat(author)
+        }
+        return book
+    },
+    editAuthor: (root, args) => {
+      console.log("editing author")
+      console.log(args)
+      const it = authors.find(a => a.name === args.name)
+      const index = authors.indexOf(it)
+      console.log(it)
+ 
+      if(it){
+        let editedAuthor = {...it}
+        console.log(editedAuthor)
+        if(args.setBornTo){
+          editedAuthor = {
+            name: editedAuthor.name,
+            born: args.setBornTo,
+            books: editedAuthor.books,
+            id: editedAuthor.id
+          }
+        }
+        authors[index] = editedAuthor
+        return editedAuthor
+      }
+    }
   },
   Author: {
     name: (root) => root.name,
