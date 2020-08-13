@@ -1,10 +1,13 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 const { v1: uuid } = require('uuid')
 const mongoose = require('mongoose')
 require('dotenv').config()
+const jwt = require('jsonwebtoken')
 const Book = require('./models/book')
 const Author = require('./models/author')
+const User = require('./models/user')
 
+const JWT_SECRET = 'SECRET_SECRET'
 
 mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)
@@ -37,12 +40,20 @@ const typeDefs = gql`
     id: ID!
     genres: [String]
   }
-
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+  type Token {
+    value: String!
+  }
   type Query {
     bookCount: Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
   type Mutation {
     addBook(
@@ -52,6 +63,8 @@ const typeDefs = gql`
       genres: [String!]!
     ): Book
     editAuthor(name: String!, setBornTo: Int): Author
+    createUser(username: String!, favoriteGenre: String!): User
+    login(username: String!, password: String!): Token
   }
 `
 
@@ -72,16 +85,20 @@ const resolvers = {
     },
     allAuthors: () => {
       return Author.find({})
+    },
+    me: (root, args, context) => {
+      return context.currentUser
     }
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
       console.log("Args:", args)
       let foundAuthor = await Author.findOne({ name: args.authorName })
       if(!foundAuthor){
         const author = new Author({
           name: args.authorName
         })
+
         try{
           foundAuthor = await author.save()
         } catch (error) {
@@ -90,6 +107,7 @@ const resolvers = {
           })
         }
       }
+
         const book = new Book({
           title: args.title,
           published: args.published,
@@ -99,19 +117,20 @@ const resolvers = {
         
         try {
           await book.save()
+          const corresponding = await Book.findById(book._id).populate('Author', { name: 1, id: 1})
+          book.Author = {name: args.authorName}
+          console.log("Author:", foundAuthor)
+          console.log("Book:", book)
+          console.log("Corresponding;", corresponding)
+          return book
         } catch (error) {
           throw new UserInputError(error.message, {
             invalidArgs: args,
           })
         }
-        const corresponding = await Book.findById(book._id).populate('Author', { name: 1, id: 1})
-        book.Author = {name: args.authorName}
-        console.log("Author:", foundAuthor)
-        console.log("Book:", book)
-        console.log("Corresponding;", corresponding)
-        return book
+        
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
       console.log("args:", args)
       console.log("editing author")
       const it = await Author.findOne({name: args.name})
@@ -129,8 +148,34 @@ const resolvers = {
         const response =  await Author.findByIdAndUpdate(it._id, editedAuthor)
         return response
       }
-    }
+    },
+  createUser: (root, args) => {
+      const userObject = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre,
+        password: "salasana"
+      })
+      return userObject.save()
+      .catch(error => {
+      throw new UserInputError(error.message, {
+        invalidArgs: args,
+      })
+    })
   },
+  login: async (root, args) => {
+    const user = await User.findOne({ username: args.username})
+    if ( !user || args.password !== 'salasana'){
+      throw new UserInputError("wrong creditentials")
+    }
+
+    const userForToken = {
+      username: user.username,
+      id: user._id
+    }
+
+    return { value: jwt.sign(userForToken, JWT_SECRET)}
+  }
+},
   Author: {
     name: (root) => root.name,
     id: (root) => root.id,
@@ -150,6 +195,17 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: async({ req }) => {
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.toLowerCase().startsWith('bearer ')) {
+      const decodedToken = jwt.verify(
+        auth.substring(7), JWT_SECRET
+      )
+      const currentUser = await User.findById(decodedToken.id)
+      return { currentUser }
+
+    }
+  }
 })
 
 server.listen().then(({ url }) => {

@@ -6,13 +6,11 @@ import Select from 'react-select'
 
 const SelectBar = (props) => {
 
-  const [selectedOption, setSelectedOption] = useState(null)
 
   const data = props.authors.map(a => ({label: a.name, value: a.name}))
   const setName = props.setName
 
   const handleChange = selection => {
-    setSelectedOption(selection.value)
     setName(selection.value)
   }
 
