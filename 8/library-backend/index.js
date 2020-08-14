@@ -1,4 +1,4 @@
-const { ApolloServer, gql, UserInputError } = require('apollo-server')
+const { ApolloServer, gql, UserInputError, AuthenticationError } = require('apollo-server')
 const { v1: uuid } = require('uuid')
 const mongoose = require('mongoose')
 require('dotenv').config()
@@ -92,6 +92,11 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
+      const currentUser = context.currentUser
+
+      if(!currentUser) {
+        throw new AuthenticationError("not authenticated")
+      }
       console.log("Args:", args)
       let foundAuthor = await Author.findOne({ name: args.authorName })
       if(!foundAuthor){
@@ -131,6 +136,11 @@ const resolvers = {
         
     },
     editAuthor: async (root, args, context) => {
+      const currentUser = context.currentUser
+
+      if(!currentUser) {
+        throw new AuthenticationError("not authenticated")
+      }
       console.log("args:", args)
       console.log("editing author")
       const it = await Author.findOne({name: args.name})
@@ -165,6 +175,7 @@ const resolvers = {
   login: async (root, args) => {
     const user = await User.findOne({ username: args.username})
     if ( !user || args.password !== 'salasana'){
+      console.log("wrong creditentials")
       throw new UserInputError("wrong creditentials")
     }
 

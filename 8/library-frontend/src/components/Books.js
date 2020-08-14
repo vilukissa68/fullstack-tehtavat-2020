@@ -1,8 +1,10 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
 
 const Books = (props) => {
+
+  const [shownGenre, setShownGenre] = useState(null)
 
   const result = useQuery(ALL_BOOKS)
   
@@ -15,14 +17,10 @@ const Books = (props) => {
   }
 
 
-  console.log(result)
   const books = result.data.allBooks
 
-
-  return (
-    <div>
-      <h2>books</h2>
-
+  const BooksTable = ({books}) => {
+    return(
       <table>
         <tbody>
           <tr>
@@ -43,6 +41,46 @@ const Books = (props) => {
           )}
         </tbody>
       </table>
+    )}
+
+  const GenreButtons = ({setShownGenre}) => {
+    let allGenres = []
+    books.forEach(book => {
+      book.genres.forEach(genre => {
+        allGenres = allGenres.concat(genre)
+      })
+    })
+    const uniqueGenres = allGenres.filter((item, index) => allGenres.indexOf(item) === index)
+
+    return (
+      <div>
+        <button key={'all-genres-button'}
+        onClick={() => setShownGenre(null)}>all genres</button>
+        {uniqueGenres.map(genre => 
+        <button key={`${genre}-button`}
+         value={genre}
+         onClick={({ target }) => setShownGenre(target.value)}>{genre}</button>
+        )}
+        </div>
+    )
+  }
+
+  if(shownGenre){
+    const shownBooks = books.filter(book => book.genres.includes(shownGenre))
+    return (
+      <>
+       <h2>books</h2>
+       <GenreButtons setShownGenre={setShownGenre}/>
+       <BooksTable books={shownBooks}/>
+      </>
+    )
+  }
+
+  return (
+    <div>
+      <h2>books</h2>
+      <GenreButtons setShownGenre={setShownGenre}/>
+      <BooksTable books={books}/>
     </div>
   )
 }
