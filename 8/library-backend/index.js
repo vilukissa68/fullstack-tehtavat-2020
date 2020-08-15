@@ -1,5 +1,4 @@
-const { ApolloServer, gql, UserInputError, AuthenticationError } = require('apollo-server')
-const { v1: uuid } = require('uuid')
+const { ApolloServer, gql, UserInputError, AuthenticationError, PubSub } = require('apollo-server')
 const mongoose = require('mongoose')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
@@ -8,6 +7,7 @@ const Author = require('./models/author')
 const User = require('./models/user')
 
 const JWT_SECRET = 'SECRET_SECRET'
+const pubsub = new PubSub()
 
 mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)
@@ -54,6 +54,9 @@ const typeDefs = gql`
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
     me: User
+  }
+  type Subscription {
+    bookAdded: Book!
   }
   type Mutation {
     addBook(
@@ -122,11 +125,10 @@ const resolvers = {
         
         try {
           await book.save()
-          const corresponding = await Book.findById(book._id).populate('Author', { name: 1, id: 1})
           book.Author = {name: args.authorName}
-          console.log("Author:", foundAuthor)
-          console.log("Book:", book)
-          console.log("Corresponding;", corresponding)
+
+          pubsub.publish('BOOK_ADDED', { bookAdded: book })
+
           return book
         } catch (error) {
           throw new UserInputError(error.message, {
@@ -187,6 +189,11 @@ const resolvers = {
     return { value: jwt.sign(userForToken, JWT_SECRET)}
   }
 },
+  Subscription : {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED'])
+    },
+  },
   Author: {
     name: (root) => root.name,
     id: (root) => root.id,
@@ -219,6 +226,7 @@ const server = new ApolloServer({
   }
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`)
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`)
 })

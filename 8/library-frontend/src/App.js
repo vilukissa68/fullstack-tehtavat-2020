@@ -6,7 +6,8 @@ import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Notify from './components/Notify'
 import Recomendations from './components/Recomendations'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
+import { BOOK_ADDED, ALL_BOOKS } from './queries'
 
 
 const App = () => {
@@ -14,6 +15,29 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [token, setToken] = useState(null)
   const client = useApolloClient()
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log("Subscription")
+      console.log(subscriptionData)
+      window.alert(`New book added: ${subscriptionData.data.bookAdded.title}`)
+      updateCacheWith(subscriptionData.data.bookAdded)
+    }
+  })
+
+  const updateCacheWith = (addedBook) => {
+    const includedIn = (set, object) => {
+      set.map(b => b.id).includes(object.id)
+    }
+
+    const dataInStore = client.readQuery({ query: ALL_BOOKS })
+    if(!includedIn(dataInStore.allBooks, addedBook)) {
+      client.writeQuery({
+        query: ALL_BOOKS,
+        data: { allBooks : dataInStore.allBooks.concat(addedBook)}
+      })
+    }
+  }
 
   useEffect(() => {
     const userToken = localStorage.getItem('library-user-token')
