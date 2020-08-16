@@ -31,6 +31,7 @@ const typeDefs = gql`
     id: ID!
     born: Int
     bookCount: Int!
+    books: [Book!]!
   }
 
   type Book {
@@ -77,6 +78,7 @@ const resolvers = {
     authorCount: () => authors.length,
     allBooks: async (root, args) => {
       let filteredBooks = await Book.find({}).populate('author')
+      console.log("Book.find")
       if(args.author){
         filteredBooks = filteredBooks.filter(book => book.author.name === args.author)
       }
@@ -87,6 +89,7 @@ const resolvers = {
       return filteredBooks
     },
     allAuthors: () => {
+      console.log("Author.find")
       return Author.find({})
     },
     me: (root, args, context) => {
@@ -100,11 +103,12 @@ const resolvers = {
       if(!currentUser) {
         throw new AuthenticationError("not authenticated")
       }
-      console.log("Args:", args)
       let foundAuthor = await Author.findOne({ name: args.authorName })
+      console.log("Author.find")
       if(!foundAuthor){
         const author = new Author({
-          name: args.authorName
+          name: args.authorName,
+          books: []
         })
 
         try{
@@ -124,7 +128,11 @@ const resolvers = {
         })
         
         try {
-          await book.save()
+          const savedBook = await book.save()
+          await Author.findByIdAndUpdate(
+            foundAuthor._id,
+            { $push: { books: savedBook._id } }
+          )
           book.Author = {name: args.authorName}
 
           pubsub.publish('BOOK_ADDED', { bookAdded: book })
@@ -143,10 +151,8 @@ const resolvers = {
       if(!currentUser) {
         throw new AuthenticationError("not authenticated")
       }
-      console.log("args:", args)
-      console.log("editing author")
       const it = await Author.findOne({name: args.name})
-      console.log("Found author", it)
+      console.log("Author.find")
  
       if(it){
         let editedAuthor = {...it}
@@ -176,6 +182,7 @@ const resolvers = {
   },
   login: async (root, args) => {
     const user = await User.findOne({ username: args.username})
+    console.log("User.find")
     if ( !user || args.password !== 'salasana'){
       console.log("wrong creditentials")
       throw new UserInputError("wrong creditentials")
@@ -198,12 +205,8 @@ const resolvers = {
     name: (root) => root.name,
     id: (root) => root.id,
     born: (root) => root.born,
-    bookCount: async (root) => {
-      const books = await Book.find( { "author": { "$in": [root._id]} })
-      if(!books){
-        return
-      }
-      return books.length
+    bookCount: (root) => {
+      return root.books.length
     }
   },
   Book: {
@@ -220,6 +223,7 @@ const server = new ApolloServer({
         auth.substring(7), JWT_SECRET
       )
       const currentUser = await User.findById(decodedToken.id)
+      console.log("User.find")
       return { currentUser }
 
     }
