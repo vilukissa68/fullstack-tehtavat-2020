@@ -7,7 +7,7 @@ const categories = [
   {upperLimit: 35, category: "Obese Class I (Moderately obese)"},
   {upperLimit: 40, category: "Obese Class II (Severely obese)"},
   {upperLimit: 100, category: "Obese Class III (Very severely obese)"}
-]
+];
 
 const calculateBMI = ( height:number, weight: number ) : string => {
   const BMI = (weight)/(height/100*height/100);
@@ -17,10 +17,10 @@ const calculateBMI = ( height:number, weight: number ) : string => {
     }
   }
   return categories[categories.length - 1].category;
-}
+};
 
-const h : number = Number(process.argv[2])
-const w : number = Number(process.argv[3])
-console.log(calculateBMI(h, w))
+const h  = Number(process.argv[2]);
+const w  = Number(process.argv[3]);
+console.log(calculateBMI(h, w));
 
-export { calculateBMI }
+export { calculateBMI };
