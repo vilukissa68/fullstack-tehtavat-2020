@@ -1,7 +1,19 @@
-export type Gender = 'female' | 'male' | 'other';
+export enum Gender {
+  Female = 'female',
+  Male = 'male',
+  Other = 'other',
+}
 
 export interface PatientEntry {
   id: string;
+  name: string;
+  dateOfBirth: string;
+  ssn: string;
+  gender: Gender;
+  occupation: string;
+}
+
+export interface NewPatientEntry {
   name: string;
   dateOfBirth: string;
   ssn: string;
