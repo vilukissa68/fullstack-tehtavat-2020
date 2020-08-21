@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import { Button, Divider, Header, Container } from "semantic-ui-react";
+import SinglePatientPage from './SinglePatientPage';
 
 import { apiBaseUrl } from "./constants";
 import { useStateValue } from "./state";
@@ -37,6 +38,7 @@ const App: React.FC = () => {
           </Button>
           <Divider hidden />
           <Switch>
+            <Route path="/patient/:id" render={() => <SinglePatientPage />} />
             <Route path="/" render={() => <PatientListPage />} />
           </Switch>
         </Container>

@@ -22,16 +22,24 @@ const getNonSensitiveEntires =
 const addEntry = ( entry: NewPatientEntry ): PatientEntry => {
     const newPatientEntry = {
       id: String(Math.max(...patients.map(p => Number(p.id))) + 1),
+      entries: [],
       ...entry
     };
     patients.push(newPatientEntry);
     return newPatientEntry;
   };
 
+const getById = ( id: string ): PatientEntry => {
+  const foundPatient: PatientEntry = patients.find(p => p.id === id) as PatientEntry;
+  return foundPatient;
+  
+  
+};
 
 
 export default {
   getEntries,
   getNonSensitiveEntires,
-  addEntry
+  addEntry,
+  getById
 };

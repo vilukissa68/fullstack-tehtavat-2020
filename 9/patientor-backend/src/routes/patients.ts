@@ -4,9 +4,6 @@ import toNewPatientEntry from '../utilities';
 
 const router = express.Router();
 
-router.get('/', (_req, res) => {
-  res.send(patientService.getNonSensitiveEntires());
-});
 
 router.post('/', (req, res) => {
   try{
@@ -19,5 +16,22 @@ router.post('/', (req, res) => {
       res.status(400).send(e.message);
   }
 });
+
+router.get('/:id', (req, res) => {
+  console.log("Find by id");
+  try {
+    const id = req.params.id;
+    res.send(patientService.getById(id));
+    
+  } catch(e) {
+    res.status(400).send(e.message);
+  }
+});
+
+router.get('/', (_req, res) => {
+  console.log("Find all");
+  res.send(patientService.getNonSensitiveEntires());
+});
+
 
 export default router;
